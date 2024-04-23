@@ -13,6 +13,7 @@ from .reid.torchreid import models
 # from Utils.Trackers.DeepSort.deep_sort.deep.reid.torchreid import models
 
 
+
 class Extractor(object):
     def __init__(self, model_type, use_cuda=True):
         self.device = "cuda" if torch.cuda.is_available() and use_cuda else "cpu"

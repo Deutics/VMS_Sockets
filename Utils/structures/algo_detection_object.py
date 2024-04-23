@@ -32,6 +32,40 @@ class ALGO_DETECTION_OBJECT:
     def toJSON(self):
         return json.dumps(
             self,
-            default=lambda o: o.__dict__,
+            default=lambda o: {
+                "cameraLocation": o.cameraLocation,
+                "cameraName": o.cameraName,
+                "totalObjectCount": o.totalObjectCount,
+                "videoWidth": o.videoWidth,
+                "videoHeight": o.videoHeight,
+                "dateTime": o.dateTime.isoformat(),  # Use isoformat() for JSON
+                "AlgoType": o.AlgoType,
+                "videoCounter": o.videoCounter,
+                "DetectionCameraConfig": o.DetectionCameraConfig,
+                "algoObject": [
+                    {
+                        "objectCount": ob.objectCount,
+                        "alarmSet": ob.alarmSet,
+                        "objectsType": ob.objectsType,
+                        "algoObject": [  # Serialize each object data
+                            {
+                                "X": inner_ob.X,
+                                "Y": inner_ob.Y,
+                                "Width": inner_ob.Width,
+                                "Height": inner_ob.Height,
+                                "CountUpTime": inner_ob.CountUpTime,
+                                "ObjectType": inner_ob.ObjectType,
+                                "DetectionPercentage": inner_ob.DetectionPercentage if hasattr(inner_ob,
+                                                                                               "DetectionPercentage") else None,
+                                # Handle optional field
+                                "frameNum": inner_ob.frameNum if hasattr(inner_ob, "frameNum") else None,
+                                # Handle optional field
+                                "ID": inner_ob.ID,
+                                "polygonID": inner_ob.polygonID
+                            } for inner_ob in ob.algoObject
+                        ]
+                    } for ob in o.algoObject
+                ]
+            },
             sort_keys=True,
             indent=4)
