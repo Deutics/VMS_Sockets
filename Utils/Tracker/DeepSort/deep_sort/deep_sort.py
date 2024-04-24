@@ -47,8 +47,8 @@ class DeepSort(object):
             # print(x1, y1, x2, y2)
             ####################################
             # Finding Centers
-            x, y = int((x1 + x2) / 2), int((y1 + y2) / 2)
-            track._past_positions.add_position((x, y))
+            # x, y = int((x1 + x2) / 2), int((y1 + y2) / 2)
+            # track._past_positions.add_position((x, y))
             ####################################
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue

@@ -102,27 +102,6 @@ class ObjectTracker:
         **************************************************"""
         boxes = xyxy2xywh(detections[:, 0:4])
 
-        # if self._obj_size is not None:
-        #     # calculating max/min height and width we need
-        #     max_width = self._obj_size["Width"] + (self._obj_size["Width"] * (self._obj_size["Precision"] * 0.01))
-        #     max_height = self._obj_size["Height"] + (self._obj_size["Height"] * (self._obj_size["Precision"] * 0.01))
-        #     min_width = self._obj_size["Width"] - (self._obj_size["Width"] * (self._obj_size["Precision"] * 0.01))
-        #     min_height = self._obj_size["Height"] - (self._obj_size["Height"] * (self._obj_size["Precision"] * 0.01))
-        #
-        #     xy_wh = []
-        #     conf_rate = []
-        #     label = []
-        #
-        #     # removing extra boxes
-        #     for i, detection in enumerate(boxes):
-        #         if (max_width >= detection[2] >= min_width) and (max_height >= detection[3] >= min_height):
-        #             xy_wh.append([float(detection[0]), float(detection[1]), float(detection[2]), float(detection[3])])
-        #             conf_rate.append(detections[i, 4])
-        #             label.append(detections[i, 5])
-        #
-        #     return torch.tensor(xy_wh, device='cuda:0'), torch.tensor(conf_rate, device='cuda:0'),\
-        #         torch.tensor(label, device='cuda:0')
-
         conf_rate = detections[:, 4:5]
         label = detections[:, 5:6]
         return boxes, conf_rate, label

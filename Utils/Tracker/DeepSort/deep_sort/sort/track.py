@@ -86,9 +86,9 @@ class Track:
         self._n_init = n_init
         self._max_age = max_age
         # new
-        self._past_positions = PositionsRecord()
-        self._notification_generated = False
-        self._time_detected = None
+        # self._past_positions = PositionsRecord()
+        # self._notification_generated = False
+        # self._time_detected = None
         self.is_missed = False
         # --
 
@@ -194,48 +194,51 @@ class Track:
         """Returns True if this track is dead and should be deleted."""
         return self.state == TrackState.Deleted
 
-    def check_if_intersects(self, line_coordinates):
-        """***************************************
-        Functionality: check if object_coordinates intersects the line coordinates
-        Parameters: object_coordinates(list of two indexes : [(x1,y1),(x,y1)])
-        Returns: true(if intersects)
-        ******************************************"""
-
-        if not self._notification_generated:
-            # getting tracks
-            first_position, last_position = self._past_positions.first_position(), self._past_positions.last_position()
-
-            line_to_be_intruded = LineString(line_coordinates)
-            object_position = LineString([first_position, last_position])
-            if line_to_be_intruded.intersects(object_position):
-                self._notification_generated = True
-                return self._notification_generated
+    # def check_if_intersects(self, line_coordinates):
+    #     """***************************************
+    #     Functionality: check if object_coordinates intersects the line coordinates
+    #     Parameters: object_coordinates(list of two indexes : [(x1,y1),(x,y1)])
+    #     Returns: true(if intersects)
+    #     ******************************************"""
+    #
+    #     if not self._notification_generated:
+    #         # getting tracks
+    #         first_position, last_position = self._past_positions.first_position(), self._past_positions.last_position()
+    #
+    #         line_to_be_intruded = LineString(line_coordinates)
+    #         object_position = LineString([first_position, last_position])
+    #         if line_to_be_intruded.intersects(object_position):
+    #             self._notification_generated = True
+    #             return self._notification_generated
 
     def get_state(self):
         """
         Returns the current bounding box estimate.
         """
-        return [self.yolo_bbox.to_tlbr()]
+        if type(self.yolo_bbox) is not list:
+            return [self.yolo_bbox.to_tlbr()]
+        return [[]]
 
-    @property
-    def past_positions(self):
-        return self._past_positions
 
-    @property
-    def notification_generated(self):
-        return self._notification_generated
-
-    @property
-    def time_detected(self):
-        return self._time_detected
-
-    @notification_generated.setter
-    def notification_generated(self, notification_generated):
-        self._notification_generated = notification_generated
-
-    @time_detected.setter
-    def time_detected(self, time_detected):
-        self._time_detected = time_detected
+    # @property
+    # def past_positions(self):
+    #     return self._past_positions
+    #
+    # @property
+    # def notification_generated(self):
+    #     return self._notification_generated
+    #
+    # @property
+    # def time_detected(self):
+    #     return self._time_detected
+    #
+    # @notification_generated.setter
+    # def notification_generated(self, notification_generated):
+    #     self._notification_generated = notification_generated
+    #
+    # @time_detected.setter
+    # def time_detected(self, time_detected):
+    #     self._time_detected = time_detected
 
     @property
     def track_id(self):

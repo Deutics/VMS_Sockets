@@ -1,4 +1,6 @@
 # Tracker
+import cv2
+
 from Utils.Tracker.DeepSort.ObjectTracker import ObjectTracker
 
 # Zones
@@ -45,8 +47,9 @@ class ZoneIntrusionDetector:
                                              detector="Yolov8",
                                              detector_model="yolov8s.pt")
 
-        self.multicast_socket = MulticastSocket(multicast_address="234.100.0.1",
-                                                multicast_port=8088)
+        self.multicast_socket = MulticastSocket(multicast_address="224.1.1.1",
+                                                multicast_port=1234)
+        self.region_min_x, self.region_min_y, self.region_max_x, self.region_max_y = 0, 0, 0, 0
         self._first_frame = 1
         self.camera_location = camera_location
         self.camera_name = camera_name
@@ -67,12 +70,10 @@ class ZoneIntrusionDetector:
 
             if not is_frame:
                 break
-            # if self.is_current_time_within_bounds():
-            #     # calling process_frame
-            # frame = cv2.resize(frame, (720, 480))
+
             self.process_frame(frame)
 
-            cv2.imshow("tracking", frame)
+            cv2.imshow("Zone Intrusion", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         cap.release()
@@ -81,15 +82,20 @@ class ZoneIntrusionDetector:
     def process_frame(self, frame):
         if self._first_frame:
             self.video_height, self.video_width, _ = frame.shape
-            self._polygon_zone.create_polygon_mask(img_size=(self.video_height, self.video_width))
+            # self._polygon_zone.create_polygon_mask(img_size=(self.video_height, self.video_width))
+            points = self._polygon_zone.zone_coordinates
+            self.region_min_x, self.region_min_y = max(0, points.min(axis=0)[0]), max(0, points.min(axis=0)[1])
+            self.region_max_x, self.region_max_y = min(frame.shape[1], points.max(axis=0)[0]), points.max(axis=0)[1]
             self._first_frame = 0
 
-        tracked_objects = self._object_tracker.process_frame(frame)
+        extracted_rectangle = frame[self.region_min_y:self.region_max_y,
+                                    self.region_min_x:self.region_max_x]
+
+        tracked_objects = self._object_tracker.process_frame(extracted_rectangle)
 
         frame = self._draw_polygon(frame)
+
         if len(tracked_objects):
-            # Feature
-            draw_boundary_boxes(detections=tracked_objects, img=frame)
             self._check_zone_intrusion(frame=frame, detections=tracked_objects)
 
         return tracked_objects
@@ -99,6 +105,39 @@ class ZoneIntrusionDetector:
         pts = self._polygon_zone.zone_coordinates.reshape((-1, 1, 2))
         frame = cv2.polylines(frame, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
         return frame
+
+    # def _check_zone_intrusion(self, frame, detections):
+    #     """*********************************
+    #     Functionality: Check if any of detected objects has intruded the defined zone
+    #     Parameter: None
+    #     Return: None
+    #     ************************************"""
+    #     tracks = self._object_tracker.tracker.get_tracks()
+    #     intruded_objects = {}
+    #
+    #     for i, track in enumerate(tracks):
+    #         if not track.is_missed:
+    #             if self._polygon_zone.if_zone_intruded(track):
+    #                 bbox = track.get_state()[0]
+    #                 track_id = track.track_id
+    #                 label = self._object_tracker.classes[track.class_id.item()]
+    #
+    #                 txt_tobe_print = f'{track_id}' + " " + f'{label}'
+    #                 plot_one_box(bbox, frame, label=txt_tobe_print, color=(0, 0, 255), line_thickness=1)
+    #
+    #                 intruded_object = ALGO_DETECTION_OBJECT_DATA(X=int(bbox[0]), Y=int(bbox[1]),
+    #                                                              Width=int(bbox[2]-bbox[0]), Height=int(bbox[3]-bbox[1]),
+    #                                                              CountUpTime=0, ObjectType=label, frameNum=0,
+    #                                                              ID=track_id, polygonID=0)
+    #
+    #                 if label in intruded_objects:
+    #                     intruded_objects[label].append(intruded_object)
+    #                 else:
+    #                     intruded_objects[label] = [intruded_object]
+    #
+    #     if len(intruded_objects):
+    #         thread = threading.Thread(target=self.create_structure, args=(intruded_objects,))
+    #         thread.start()
 
     def _check_zone_intrusion(self, frame, detections):
         """*********************************
@@ -111,29 +150,30 @@ class ZoneIntrusionDetector:
 
         for i, track in enumerate(tracks):
             if not track.is_missed:
-                if self._polygon_zone.if_zone_intruded(track):
-                    bbox = track.get_state()[0]
-                    track_id = track.track_id
-                    label = self._object_tracker.classes[track.class_id.item()]
+                bbox = track.get_state()[0]
+                if not len(bbox):
+                    continue
 
-                    txt_tobe_print = f'{track_id}' + " " + f'{label}'
-                    plot_one_box(bbox, frame, label=txt_tobe_print, color=(0, 0, 255), line_thickness=1)
+                xmin, ymin, xmax, ymax = bbox
+                track_id = track.track_id
+                label = self._object_tracker.classes[track.class_id.item()]
+                # points = self._polygon_zone.zone_coordinates
+                # min_x, min_y = max(0, points.min(axis=0)[0]), max(0, points.min(axis=0)[1])
+                bbox = [xmin + self.region_min_x, ymin + self.region_min_y,
+                        xmax + self.region_min_x, ymax + self.region_min_y]
 
-                    # intruded_object = {"tracker_id": track.track_id,
-                    #                    "label": self._object_tracker.classes[track.class_id.item()],
-                    #                    "bbox": bbox}
-                    # #
-                    # intruded_objects.append(intruded_object)
+                txt_tobe_print = f'{track_id}' + " " + f'{label}'
+                plot_one_box(bbox, frame, label=txt_tobe_print, color=(0, 0, 255), line_thickness=1)
+                intruded_object = ALGO_DETECTION_OBJECT_DATA(X=int(bbox[0]), Y=int(bbox[1]),
+                                                             Width=int(bbox[2] - bbox[0]),
+                                                             Height=int(bbox[3] - bbox[1]),
+                                                             CountUpTime=0, ObjectType=label, frameNum=0,
+                                                             ID=track_id, polygonID=0)
 
-                    intruded_object = ALGO_DETECTION_OBJECT_DATA(X=int(bbox[0]), Y=int(bbox[1]),
-                                                                 Width=int(bbox[2]-bbox[0]), Height=int(bbox[3]-bbox[1]),
-                                                                 CountUpTime=0, ObjectType=label, frameNum=0,
-                                                                 ID=track_id, polygonID=0)
-
-                    if label in intruded_objects:
-                        intruded_objects[label].append(intruded_object)
-                    else:
-                        intruded_objects[label] = [intruded_object]
+                if label in intruded_objects:
+                    intruded_objects[label].append(intruded_object)
+                else:
+                    intruded_objects[label] = [intruded_object]
 
         if len(intruded_objects):
             thread = threading.Thread(target=self.create_structure, args=(intruded_objects,))
@@ -156,7 +196,7 @@ class ZoneIntrusionDetector:
                                                  dateTime=datetime.now(),
                                                  AlgoType=1,
                                                  videoCounter=1,
-                                                 DetectionCameraConfig= "udp_multicast",
+                                                 DetectionCameraConfig="udp_multicast",
                                                  algoObject=intruded_objects_by_type
                                                  )
 
