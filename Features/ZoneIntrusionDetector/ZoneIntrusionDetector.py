@@ -7,9 +7,13 @@ from Utils.Tracker.DeepSort.ObjectTracker import ObjectTracker
 from Utils.Zone.Zone import Zone
 from Utils.Zone.TimeSpecificZone import TimeSpecificZone
 from Utils.MulticastSocket.MulticastSocket import MulticastSocket
+
 from Utils.structures.algo_detection_object_data import ALGO_DETECTION_OBJECT_DATA
 from Utils.structures.algo_detection_objects_by_type import ALGO_DETECTION_OBJECTS_BY_TYPE
 from Utils.structures.algo_detection_object import ALGO_DETECTION_OBJECT
+from Utils.structures.camera_polygon import CameraPolygon
+from Utils.structures.detection_cam_config import DetectionCameraConfig
+from Utils.structures.camera_info import CameraInfo
 
 from Features.utils import *
 from datetime import datetime
@@ -188,6 +192,11 @@ class ZoneIntrusionDetector:
                                                                      algObject=value)
             intruded_objects_by_type.append(intruded_object_by_type)
 
+        camera_polygon = [CameraPolygon(camID=1, polygonId=1, detectionType="car", maxAllowed=10, polygon=[1, 2, 3])]
+        camera_info = CameraInfo(polygon_available=True, video_counter=1, video_width=1920, video_height=1080)
+
+        detection_cam_config = DetectionCameraConfig(cameraPolygon=camera_polygon, cameraInfo=camera_info)
+
         intruded_objects = ALGO_DETECTION_OBJECT(cameraLocation=self.camera_location,
                                                  cameraName=self.camera_name,
                                                  totalObjectCount=len(intruded_objects_by_type),
@@ -196,7 +205,7 @@ class ZoneIntrusionDetector:
                                                  dateTime=datetime.now(),
                                                  AlgoType=1,
                                                  videoCounter=1,
-                                                 DetectionCameraConfig="udp_multicast",
+                                                 detectionCameraConfig=detection_cam_config,
                                                  algoObject=intruded_objects_by_type
                                                  )
 

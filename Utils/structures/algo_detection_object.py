@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 import json
 from .algo_detection_objects_by_type import ALGO_DETECTION_OBJECTS_BY_TYPE
+from .detection_cam_config import DetectionCameraConfig
 
 
 class ALGO_DETECTION_OBJECT:
@@ -14,7 +15,7 @@ class ALGO_DETECTION_OBJECT:
                  dateTime: datetime,
                  AlgoType: int,
                  videoCounter: int,
-                 DetectionCameraConfig: str,
+                 detectionCameraConfig: DetectionCameraConfig,
                  algoObject: List[ALGO_DETECTION_OBJECTS_BY_TYPE]
                  ):
 
@@ -26,7 +27,7 @@ class ALGO_DETECTION_OBJECT:
         self.dateTime = dateTime
         self.AlgoType = AlgoType
         self.videoCounter = videoCounter
-        self.DetectionCameraConfig = DetectionCameraConfig
+        self.detectionCameraConfig = detectionCameraConfig
         self.algoObject = algoObject
 
     def toJSON(self):
@@ -38,10 +39,27 @@ class ALGO_DETECTION_OBJECT:
                 "totalObjectCount": o.totalObjectCount,
                 "videoWidth": o.videoWidth,
                 "videoHeight": o.videoHeight,
-                "dateTime": o.dateTime.isoformat(),  # Use isoformat() for JSON
+                "datetime": o.dateTime.isoformat(),  # Use isoformat() for JSON
                 "AlgoType": o.AlgoType,
                 "videoCounter": o.videoCounter,
-                "DetectionCameraConfig": o.DetectionCameraConfig,
+                "detectionCameraConfig": {
+                    "CameraPolygon": [
+                        {
+                            "CamID": cp.CamID,
+                            "PolygonId": cp.PolygonId,
+                            "DetectionType": cp.DetectionType,
+                            "MaxAllowed": cp.MaxAllowed,
+                            "Polygon": cp.Polygon
+                        } for cp in o.detectionCameraConfig.CameraPolygon
+                    ],
+                    "CameraInfo": {
+                        "PolygonAvailable": o.detectionCameraConfig.CameraInfo.PolygonAvailable,
+                        "videoCounter": o.detectionCameraConfig.CameraInfo.videoCounter,
+                        "videoWidth": o.detectionCameraConfig.CameraInfo.videoWidth,
+                        "videoHeight": o.detectionCameraConfig.CameraInfo.videoHeight
+                    }
+                },
+                # "detectionCameraConfig": o.detectionCameraConfig,
                 "algoObject": [
                     {
                         "objectCount": ob.objectCount,
