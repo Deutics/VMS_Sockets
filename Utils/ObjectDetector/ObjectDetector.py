@@ -71,7 +71,7 @@ class ObjectDetector:
             # frame = cv2.resize(frame, (480, 720))      # portrait
             detections = self.process_frame(frame)
 
-            print(detections)
+            # print(detections)
 
             if len(detections):
                 draw_boundary_boxes(detections=detections, img=frame)

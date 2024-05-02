@@ -463,6 +463,8 @@ def init_pretrained_weights(model, key=''):
         return torch_home
 
     torch_home = _get_torch_home()
+    # print(torch_home)
+    # torch_home = "C:\\Users\\easp\\.cache\\torch"
     model_dir = os.path.join(torch_home, 'checkpoints')
     try:
         os.makedirs(model_dir)

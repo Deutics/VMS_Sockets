@@ -15,11 +15,12 @@ class YoloDetector:
                  repository=None,
                  obj_size=None):
 
-        model_directory_path = "Utils\\ObjectDetector\\Models\\Yolov8"
+        model_directory_path = "C:\\shovalsc\\VMS_Sockets\\Utils\\ObjectDetector\\Models\\Yolov8"
 
-        download_model(model_path=model_directory_path, model_name=model_name)
+        # download_model(model_path=model_directory_path, model_name=model_name)
 
         self._weights_file_path = os.path.join(model_directory_path, model_name)
+        print("weights path", self._weights_file_path)
         self._model = YOLO(self._weights_file_path)
 
         self._conf_thresh = conf_threshold
@@ -27,7 +28,7 @@ class YoloDetector:
         self._device = 0 if use_gpu and torch.cuda.is_available() else "cpu"
 
         self._names = self._model.names
-        print(self._names)
+        # print(self._names)
         self._object_size_thresholds = self.calculate_size_bounds(obj_size)
 
         self._expected_objs = get_indexes(self._names, expected_classes=expected_objs)\

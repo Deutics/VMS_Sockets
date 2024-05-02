@@ -4,6 +4,7 @@ import cv2
 
 class Zone:
     def __init__(self, zone_coordinates=None):
+        print(zone_coordinates)
         self._zone_coordinates = np.array(zone_coordinates)
         self._polygon_binary_mask = None
 
@@ -21,12 +22,16 @@ class Zone:
 
     def create_polygon_mask(self, img_size=None):
 
-        binary_image = np.zeros(img_size)
+        binary_image = np.zeros(img_size, dtype=np.uint8)
 
-        binary_image = cv2.fillPoly(binary_image, pts=[self._zone_coordinates], color=255)
+        binary_image = cv2.fillPoly(binary_image, pts=self._zone_coordinates, color=255)
 
         self._polygon_binary_mask = binary_image
 
     @property
     def zone_coordinates(self):
         return self._zone_coordinates
+
+    @property
+    def polygon_binary_mask(self):
+        return self._polygon_binary_mask

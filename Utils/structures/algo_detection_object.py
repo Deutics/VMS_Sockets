@@ -7,8 +7,7 @@ from .detection_cam_config import DetectionCameraConfig
 
 class ALGO_DETECTION_OBJECT:
 
-    def __init__(self, cameraLocation: str,
-                 cameraName: str,
+    def __init__(self, cameraId: int,
                  totalObjectCount: int,
                  videoWidth: int,
                  videoHeight: int,
@@ -19,8 +18,7 @@ class ALGO_DETECTION_OBJECT:
                  algoObject: List[ALGO_DETECTION_OBJECTS_BY_TYPE]
                  ):
 
-        self.cameraLocation = cameraLocation
-        self.cameraName = cameraName
+        self.cameraId = cameraId
         self.totalObjectCount = totalObjectCount
         self.videoWidth = videoWidth
         self.videoHeight = videoHeight
@@ -34,18 +32,17 @@ class ALGO_DETECTION_OBJECT:
         return json.dumps(
             self,
             default=lambda o: {
-                "cameraLocation": o.cameraLocation,
-                "cameraName": o.cameraName,
+                "cameraId": o.cameraId,
                 "totalObjectCount": o.totalObjectCount,
                 "videoWidth": o.videoWidth,
                 "videoHeight": o.videoHeight,
-                "datetime": o.dateTime.isoformat(),  # Use isoformat() for JSON
+                "datetime": o.dateTime.isoformat(),
                 "AlgoType": o.AlgoType,
                 "videoCounter": o.videoCounter,
                 "detectionCameraConfig": {
                     "CameraPolygon": [
                         {
-                            "CamID": cp.CamID,
+                            # "CamID": cp.CamID,
                             "PolygonId": cp.PolygonId,
                             "DetectionType": cp.DetectionType,
                             "MaxAllowed": cp.MaxAllowed,

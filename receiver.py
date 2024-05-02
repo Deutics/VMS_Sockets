@@ -9,7 +9,7 @@ sock.bind(('', MCAST_PORT))
 mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 while True:
-    data, address = sock.recvfrom(4096)
+    data, address = sock.recvfrom(12288)
     # Decode assuming UTF-8 encoding
     json_string = data.decode('utf-8')
     print(json_string)

@@ -15,7 +15,7 @@ class ObjectTracker:
                  detector_model="yolov8s.pt",
                  config_deepsort_path='utils/Tracker/DeepSort/deep_sort/configs/deep_sort.yaml',
                  obj_size=None,
-                 conf_thresh=0.25,
+                 conf_thresh=0.5,
                  iou_thresh = 0.7,
                  use_gpu=False,
                  expected_objs=None,
