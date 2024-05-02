@@ -16,6 +16,7 @@ class PositionsRecord:
         ********************************"""
         try:
             self._positions.put(center, block=False)
+
         except:
             self._positions.get()
             self._positions.put(center, block=False)

@@ -142,6 +142,7 @@ class ZoneIntrusionDetector:
         Parameter: None
         Return: None
         ************************************"""
+
         tracks = self._object_tracker.tracker.get_tracks()
         intruded_objects = {}
 

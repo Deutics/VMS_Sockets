@@ -47,13 +47,13 @@ class DeepSort(object):
             # print(x1, y1, x2, y2)
             ####################################
             # Finding Centers
-            # x, y = int((x1 + x2) / 2), int((y1 + y2) / 2)
-            # track._past_positions.add_position((x, y))
+            x, y = int((x1 + x2) / 2), int((y1 + y2) / 2)
+            track.past_positions.add_position((x, y))
             ####################################
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue
 
-            track_id = track._track_id
+            track_id = track.track_id
             class_id = track.class_id
 
             outputs.append(np.array([x1, y1, x2, y2, track_id, class_id], dtype=np.int))
