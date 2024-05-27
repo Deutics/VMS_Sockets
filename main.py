@@ -1,13 +1,9 @@
-from Features.ZoneIntrusionDetector.ZoneIntrusionDetector import ZoneIntrusionDetector
+from Utils.MainSocketManager.MainSocketManager import MainSocketManager
 
 
-
-# main function
 if __name__ == '__main__':
+    ai = MainSocketManager(server_ip="127.0.0.1",
+                           server_port=7110)
 
-    zi = ZoneIntrusionDetector(zone_dwelling_time_in_seconds=0,
-                               server_ip="127.0.0.1",
-                               server_port=7111)
+    ai.get_data_from_socket()
 
-    zi.process_video()
-    # zi.process_video("udp://@234.7.7.7:7777?")

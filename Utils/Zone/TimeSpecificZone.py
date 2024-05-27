@@ -3,8 +3,8 @@ import time
 
 
 class TimeSpecificZone(Zone):
-    def __init__(self, zone_coordinates=None, zone_dwelling_time_in_seconds=None):
-        Zone.__init__(self, zone_coordinates=zone_coordinates)
+    def __init__(self, zone_coordinates=None, zone_dwelling_time_in_seconds=None, zone_ids=None):
+        Zone.__init__(self, zone_coordinates=zone_coordinates, zone_ids=zone_ids)
         self._zone_dwelling_time_in_seconds = zone_dwelling_time_in_seconds
 
     def if_zone_intruded(self, track):

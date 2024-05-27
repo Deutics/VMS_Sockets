@@ -1,4 +1,7 @@
 import importlib
+import json
+import socket
+
 import cv2
 from .utils import *
 
@@ -20,7 +23,7 @@ def get_detector_instance(detector,
                           obj_size):
 
     detector = detector.capitalize()
-    full_module_name = f"Utils.ObjectDetector.{detector}.{detector_classes[detector]}"
+    full_module_name = f"Utils.ObjectDetectors.{detector}.{detector_classes[detector]}"
     module = importlib.import_module(full_module_name)
 
     detector_instance = getattr(module, detector_classes[detector])
@@ -35,14 +38,16 @@ def get_detector_instance(detector,
 
 
 class ObjectDetector:
-    def __init__(self, detector="Yolov8",
+    def __init__(self,
+                 detector="Yolov8",
                  model_name="yolov8l.pt",
                  use_gpu=True,
                  conf_threshold=0.5,
-                 iou_threshold=0.7,
+                 iou_threshold=0.5,
                  expected_objects=None,
                  repository='ultralytics/yolov5',
-                 obj_size=None):
+                 obj_size=None,
+                 ):
 
         self._model = get_detector_instance(detector=detector,
                                             model_name=model_name,
@@ -67,19 +72,19 @@ class ObjectDetector:
             if not is_frame:
                 break
 
-            frame = cv2.resize(frame, (720, 480))      # landscape
+            #frame = cv2.resize(frame, (720, 480))      # landscape
             # frame = cv2.resize(frame, (480, 720))      # portrait
             detections = self.process_frame(frame)
 
             # print(detections)
 
-            if len(detections):
-                draw_boundary_boxes(detections=detections, img=frame)
+            #if len(detections):
+                #draw_boundary_boxes(detections=detections, img=frame)
 
-            cv2.imshow(streaming_source, frame)
+            #cv2.imshow(streaming_source, frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            #if cv2.waitKey(1) & 0xFF == ord('q'):
+                #`break
 
         cap.release()
         cv2.destroyAllWindows()
@@ -87,8 +92,8 @@ class ObjectDetector:
     def process_frame(self, frame):
         return self._model.process_frame(frame)
 
-    def process_frame_for_tracker(self, frame):
-        return self._model.process_frame_for_tracker(frame)
+    def process_frame_for_tracker(self, frame,expected_objects):
+        return self._model.process_frame_for_tracker(frame, expected_objects)
 
     def names(self):
         return self._model.names

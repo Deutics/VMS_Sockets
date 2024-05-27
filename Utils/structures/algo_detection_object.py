@@ -6,8 +6,8 @@ from .detection_cam_config import DetectionCameraConfig
 
 
 class ALGO_DETECTION_OBJECT:
-
-    def __init__(self, cameraId: int,
+    def __init__(self,
+                 cameraId: int,
                  totalObjectCount: int,
                  videoWidth: int,
                  videoHeight: int,
@@ -44,7 +44,7 @@ class ALGO_DETECTION_OBJECT:
                         {
                             # "CamID": cp.CamID,
                             "PolygonId": cp.PolygonId,
-                            "DetectionType": cp.DetectionType,
+                            "DetectionType": cp.DetectionAndAlertCount,
                             "MaxAllowed": cp.MaxAllowed,
                             "Polygon": cp.Polygon
                         } for cp in o.detectionCameraConfig.CameraPolygon
@@ -71,7 +71,8 @@ class ALGO_DETECTION_OBJECT:
                                 "CountUpTime": inner_ob.CountUpTime,
                                 "ObjectType": inner_ob.ObjectType,
                                 "DetectionPercentage": inner_ob.DetectionPercentage if hasattr(inner_ob,
-                                                                                               "DetectionPercentage") else None,
+                                                                                               "DetectionPercentage")
+                                else None,
                                 # Handle optional field
                                 "frameNum": inner_ob.frameNum if hasattr(inner_ob, "frameNum") else None,
                                 # Handle optional field

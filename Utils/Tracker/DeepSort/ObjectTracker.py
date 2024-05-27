@@ -1,77 +1,41 @@
 # Libraries
+import time
+
 from numpy import random
 
 from .deep_sort import DeepSort
 from .deep_sort.utils.parser import get_config
 from .deep_sort.utils.utils import *
 
-# Object Detector
-from ...ObjectDetector.ObjectDetector import ObjectDetector
 import cv2
 
 
 class ObjectTracker:
-    def __init__(self, detector="Yolov8",
-                 detector_model="yolov8s.pt",
+    def __init__(self,
                  config_deepsort_path='utils/Tracker/DeepSort/deep_sort/configs/deep_sort.yaml',
                  obj_size=None,
-                 conf_thresh=0.5,
-                 iou_thresh = 0.7,
-                 use_gpu=False,
-                 expected_objs=None,
-                 repository ='ultralytics/yolov5'
+                 use_gpu=True,
                  ):
         # initialize deepsort
         cfg = get_config()
         cfg.merge_from_file(config_deepsort_path)
-        self.object_detector = ObjectDetector(detector=detector,
-                                              model_name=detector_model,
-                                              use_gpu=use_gpu,
-                                              conf_threshold=conf_thresh,
-                                              expected_objects=expected_objs,
-                                              repository='ultralytics/yolov5')
 
         self._tracker = DeepSort('osnet_x0_25',
                                  max_dist=cfg.DEEPSORT.MAX_DIST,
                                  max_iou_distance=cfg.DEEPSORT.MAX_IOU_DISTANCE,
                                  max_age=cfg.DEEPSORT.MAX_AGE, n_init=cfg.DEEPSORT.N_INIT,
                                  nn_budget=cfg.DEEPSORT.NN_BUDGET,
-                                 use_cuda=True)
+                                 use_cuda=use_gpu)
 
         self._colors = [random.randint(0, 255) for _ in range(3)]
-        self._names_of_classes = self.object_detector.names()
         self._obj_size = obj_size
 
-    def process_video(self, streaming_source):
-        """******************************
-        Functionality: read the frame of video, and send it to function process image
-        Parameters: path of video
-        Returns: None
-        *********************************"""
-        cap = cv2.VideoCapture(streaming_source)
-
-        while True:
-            is_frame, frame = cap.read()
-            if not is_frame:
-                break
-            tracked_objects = self.process_frame(frame)
-            if len(tracked_objects):
-                frame = draw_boundary_boxes(tracked_objects,frame)
-            cv2.imshow(streaming_source, frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
-
-    def process_frame(self, frame):
+    def process_frame(self, frame, predictions_from_detector):
         """*************************************************************************
         Functionality:Takes a frame sends the frame to YoloDetector and gets its predictions
         apply strong sort functionality and show the tracked image
         Parameters:Takes a frame
         ****************************************************************************"""
-        # Yolo predictions
-        predictions_from_detector = self.object_detector.process_frame_for_tracker(frame)
 
         tracked_objects = []
 
@@ -84,11 +48,9 @@ class ObjectTracker:
                 for i, detection in enumerate(tracker_detections):
 
                     temp = {
-                        "label": self._names_of_classes[int(detection[5])],
                         "bbox": detection[:4].tolist(),
                         "tracker_id": detection[4]
                     }
-
                     tracked_objects.append(temp)
 
         return tracked_objects

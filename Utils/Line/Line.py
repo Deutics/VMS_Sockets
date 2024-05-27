@@ -27,6 +27,8 @@ class Line:
             angle_of_intersection = angle_of_line2 - angle_of_line1
 
             return math.degrees(angle_of_intersection)
+        elif track.notification_generated:
+            return 90
 
     def check_if_intersect(self, track):
         """**************************************

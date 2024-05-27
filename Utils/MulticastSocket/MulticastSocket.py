@@ -1,8 +1,11 @@
+import multiprocessing
 import socket
+import threading
 
 
 class MulticastSocket:
     def __init__(self, multicast_address: str, multicast_port: int):
+        print("new")
         self.multicast_address = multicast_address
         self.multicast_port = multicast_port
         # 2-hop restriction in network
@@ -16,5 +19,5 @@ class MulticastSocket:
         pass
 
     def send_detection(self, data):
-        # print(data, type(data))
-        self.sock.sendto(data, (self.multicast_address,self.multicast_port))
+        with multiprocessing.Lock():
+            self.sock.sendto(data, (self.multicast_address, self.multicast_port))
