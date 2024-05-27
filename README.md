@@ -1,4 +1,4 @@
-# Smarteyez_mutlicast_sockets
+# VMS_sockets
 
 to download the virtual environment run:
 
